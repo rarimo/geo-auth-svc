@@ -4,10 +4,10 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/rarimo/decentralized-auth-svc/internal/config"
-	"github.com/rarimo/decentralized-auth-svc/internal/cookies"
-	"github.com/rarimo/decentralized-auth-svc/internal/jwt"
-	"github.com/rarimo/decentralized-auth-svc/internal/zkp"
+	"github.com/rarimo/geo-auth-svc/internal/config"
+	"github.com/rarimo/geo-auth-svc/internal/cookies"
+	"github.com/rarimo/geo-auth-svc/internal/jwt"
+	"github.com/rarimo/geo-auth-svc/internal/zkp"
 	"gitlab.com/distributed_lab/logan/v3"
 )
 

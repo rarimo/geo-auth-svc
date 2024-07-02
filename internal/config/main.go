@@ -1,9 +1,9 @@
 package config
 
 import (
-	"github.com/rarimo/decentralized-auth-svc/internal/cookies"
-	"github.com/rarimo/decentralized-auth-svc/internal/jwt"
-	"github.com/rarimo/decentralized-auth-svc/internal/zkp"
+	"github.com/rarimo/geo-auth-svc/internal/cookies"
+	"github.com/rarimo/geo-auth-svc/internal/jwt"
+	"github.com/rarimo/geo-auth-svc/internal/zkp"
 	"gitlab.com/distributed_lab/kit/comfig"
 	"gitlab.com/distributed_lab/kit/kv"
 )

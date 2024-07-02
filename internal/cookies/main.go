@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/rarimo/decentralized-auth-svc/internal/jwt"
+	"github.com/rarimo/geo-auth-svc/internal/jwt"
 )
 
 const (
