@@ -3,7 +3,7 @@ log:
   disable_sentry: true
 
 listener:
-  addr: :8000
+  addr: :5000
 
 jwt:
   secret_key: 0xbcb14d08dc1472b80f49eaf72f0873ac314a7146083bbf3694df8c3238949f2ec0971427f5509382a2812c700e541e328cd6ec65a1383c3ca435cdf55862dc4b
@@ -18,3 +18,6 @@ cookies:
 verifier:
   schema: 12345
   enabled: false
+
+points:
+  url: http://127.0.0.1:8000/

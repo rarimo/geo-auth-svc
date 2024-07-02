@@ -2,8 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"math/big"
 	"net/http"
+	"net/http/cookiejar"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	zkptypes "github.com/iden3/go-rapidsnark/types"
@@ -42,26 +46,35 @@ func Authorize(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	access, aexp, err := JWT(r).IssueJWT(
-		&jwt.AuthClaim{
-			Nullifier: req.Data.ID,
-			Type:      jwt.AccessTokenType,
-		},
-	)
+	accessJWT := &jwt.AuthClaim{
+		Nullifier:  req.Data.ID,
+		Type:       jwt.AccessTokenType,
+		IsVerified: Points(r).DefaultVerified,
+	}
 
+	refreshJWT := &jwt.AuthClaim{
+		Nullifier:  req.Data.ID,
+		Type:       jwt.RefreshTokenType,
+		IsVerified: Points(r).DefaultVerified,
+	}
+
+	if !Points(r).Disabled {
+		verified, err := findOutVerificationStatus(r, req)
+		if err != nil {
+			Log(r).WithError(err).Warnf("failed to find out passport verification status for [%s]; IsVerified set to false", req.Data.ID)
+		}
+		accessJWT.IsVerified = verified
+		refreshJWT.IsVerified = verified
+	}
+
+	access, aexp, err := JWT(r).IssueJWT(accessJWT)
 	if err != nil {
 		Log(r).WithError(err).WithField("user", req.Data.ID).Error("failed to issuer JWT token")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	refresh, rexp, err := JWT(r).IssueJWT(
-		&jwt.AuthClaim{
-			Nullifier: req.Data.ID,
-			Type:      jwt.RefreshTokenType,
-		},
-	)
-
+	refresh, rexp, err := JWT(r).IssueJWT(refreshJWT)
 	if err != nil {
 		Log(r).WithError(err).WithField("user", req.Data.ID).Error("failed to issuer JWT token")
 		ape.RenderErr(w, problems.InternalError())
@@ -90,4 +103,65 @@ func Authorize(w http.ResponseWriter, r *http.Request) {
 	Cookies(r).SetAccessToken(w, access, aexp)
 	Cookies(r).SetRefreshToken(w, refresh, rexp)
 	ape.Render(w, resp)
+}
+
+func findOutVerificationStatus(r *http.Request, req *resources.AuthorizeRequest) (bool, error) {
+	reqV, err := http.NewRequest("GET", Points(r).URL+Points(r).Endpoint+req.Data.ID, nil)
+	if err != nil {
+		return false, fmt.Errorf("failed to create GET request: %w", err)
+	}
+
+	access, _, err := JWT(r).IssueJWT(&jwt.AuthClaim{
+		Nullifier: req.Data.ID,
+		Type:      jwt.AccessTokenType,
+	})
+	if err != nil {
+		return false, fmt.Errorf("failed to issueJWT: %w", err)
+	}
+
+	cookies, err := cookiejar.New(nil)
+	if err != nil {
+		return false, fmt.Errorf("failed to create cookiejar: %w", err)
+	}
+
+	client := &http.Client{
+		Jar:     cookies,
+		Timeout: 5 * time.Second,
+	}
+
+	client.Jar.SetCookies(reqV.URL, []*http.Cookie{{
+		Name:  jwt.AccessTokenType.String(),
+		Value: access,
+	}})
+
+	resp, err := client.Do(reqV)
+	if err != nil {
+		return false, fmt.Errorf("failed to perform request: %w", err)
+	}
+	defer func() { resp.Body.Close() }()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return false, fmt.Errorf("failed to read resp body: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return false, fmt.Errorf("api error with status code %d %s", resp.StatusCode, respBody)
+	}
+
+	var result BalanceResponse
+	err = json.Unmarshal(respBody, &result)
+	if err != nil {
+		return false, fmt.Errorf("failed to unmarshal response: %w", err)
+	}
+
+	return result.Data.Attributes.IsVerified, nil
+}
+
+type BalanceResponse struct {
+	Data struct {
+		Attributes struct {
+			IsVerified bool `json:"is_verified"`
+		} `json:"attributes"`
+	} `json:"data"`
 }

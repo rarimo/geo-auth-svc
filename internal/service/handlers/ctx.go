@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/rarimo/geo-auth-svc/internal/config"
 	"github.com/rarimo/geo-auth-svc/internal/cookies"
 	"github.com/rarimo/geo-auth-svc/internal/jwt"
 	"github.com/rarimo/geo-auth-svc/internal/zkp"
@@ -18,6 +19,7 @@ const (
 	claimKey
 	verifierKey
 	cookiesKey
+	pointsKey
 )
 
 func CtxLog(entry *logan.Entry) func(context.Context) context.Context {
@@ -50,6 +52,12 @@ func CtxCookies(cookies *cookies.Cookies) func(context.Context) context.Context 
 	}
 }
 
+func CtxPoints(points *config.Points) func(context.Context) context.Context {
+	return func(ctx context.Context) context.Context {
+		return context.WithValue(ctx, pointsKey, points)
+	}
+}
+
 func Log(r *http.Request) *logan.Entry {
 	return r.Context().Value(logCtxKey).(*logan.Entry)
 }
@@ -68,4 +76,8 @@ func Verifier(r *http.Request) *zkp.Verifier {
 
 func Cookies(r *http.Request) *cookies.Cookies {
 	return r.Context().Value(cookiesKey).(*cookies.Cookies)
+}
+
+func Points(r *http.Request) *config.Points {
+	return r.Context().Value(pointsKey).(*config.Points)
 }

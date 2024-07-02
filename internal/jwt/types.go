@@ -10,6 +10,7 @@ const (
 	NullifierClaimName           = "sub"
 	ExpirationTimestampClaimName = "exp"
 	TokenTypeClaimName           = "type"
+	IsVerifiedClaimName          = "verified"
 )
 
 type TokenType string
@@ -25,8 +26,9 @@ var (
 
 // AuthClaim is a helper structure to organize all claims in one entity
 type AuthClaim struct {
-	Nullifier string
-	Type      TokenType
+	Nullifier  string
+	Type       TokenType
+	IsVerified bool
 }
 
 // RawJWT represents helper structure to provide setter and getter methods to work with JWT claims
@@ -38,6 +40,11 @@ type RawJWT struct {
 
 func (r *RawJWT) SetNullifier(nullifier string) *RawJWT {
 	r.claims[NullifierClaimName] = nullifier
+	return r
+}
+
+func (r *RawJWT) SetIsVerified(isVerified bool) *RawJWT {
+	r.claims[IsVerifiedClaimName] = isVerified
 	return r
 }
 
@@ -66,6 +73,17 @@ func (r *RawJWT) Nullifier() (res string, ok bool) {
 	}
 
 	res, ok = val.(string)
+	return
+}
+
+func (r *RawJWT) IsVerified() (res bool, ok bool) {
+	var val interface{}
+
+	if val, ok = r.claims[IsVerifiedClaimName]; !ok {
+		return
+	}
+
+	res, ok = val.(bool)
 	return
 }
 

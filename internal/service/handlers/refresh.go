@@ -23,8 +23,9 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 
 	access, aexp, err := JWT(r).IssueJWT(
 		&jwt.AuthClaim{
-			Nullifier: claim.Nullifier,
-			Type:      jwt.AccessTokenType,
+			Nullifier:  claim.Nullifier,
+			Type:       jwt.AccessTokenType,
+			IsVerified: claim.IsVerified,
 		},
 	)
 
@@ -36,8 +37,9 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 
 	refresh, rexp, err := JWT(r).IssueJWT(
 		&jwt.AuthClaim{
-			Nullifier: claim.Nullifier,
-			Type:      jwt.RefreshTokenType,
+			Nullifier:  claim.Nullifier,
+			Type:       jwt.RefreshTokenType,
+			IsVerified: claim.IsVerified,
 		},
 	)
 

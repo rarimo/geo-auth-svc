@@ -23,7 +23,7 @@ func AuthMiddleware(issuer *jwt.JWTIssuer, log *logan.Entry, tokenType jwt.Token
 
 			claim, err := issuer.ValidateJWT(token)
 			if err != nil {
-				log.WithError(err).Debug("failed validate bearer token")
+				log.WithError(err).Debugf("failed validate bearer token: %s", token)
 				ape.RenderErr(w, problems.Unauthorized())
 				return
 			}

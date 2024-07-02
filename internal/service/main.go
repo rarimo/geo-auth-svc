@@ -17,6 +17,7 @@ type service struct {
 	jwt      *jwt.JWTIssuer
 	verifier *zkp.Verifier
 	cookies  *cookies.Cookies
+	points   *config.Points
 }
 
 func (s *service) run() error {
@@ -32,6 +33,7 @@ func newService(cfg config.Config) *service {
 		jwt:      cfg.JWT(),
 		verifier: cfg.Verifier(),
 		cookies:  cfg.Cookies(),
+		points:   cfg.Points(),
 	}
 }
 

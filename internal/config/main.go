@@ -14,6 +14,8 @@ type Config interface {
 	jwt.Jwter
 	zkp.Verifierer
 	cookies.Cookier
+
+	Points() *Points
 }
 
 type config struct {
@@ -22,6 +24,9 @@ type config struct {
 	jwt.Jwter
 	zkp.Verifierer
 	cookies.Cookier
+
+	points comfig.Once
+
 	getter kv.Getter
 }
 
