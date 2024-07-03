@@ -11,7 +11,7 @@ jwt:
   refresh_expiration_time: 24h
 
 cookies:
-  domain: "rarime.com"
+  domain: "*"
   secure: true
   same_site: 4
 
