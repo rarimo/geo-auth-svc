@@ -27,10 +27,10 @@ func (i *JWTIssuer) IssueJWT(claim *AuthClaim) (token string, exp time.Time, err
 	switch claim.Type {
 	case AccessTokenType:
 		exp = exp.Add(i.accessExpiration)
-		raw.SetTokenAccess().SetExpirationTimestamp(exp)
+		raw.SetTokenAccess().SetExpirationTimestamp(exp).SetIsVerified(claim.IsVerified)
 	case RefreshTokenType:
 		exp = exp.Add(i.refreshExpiration)
-		raw.SetTokenRefresh().SetExpirationTimestamp(exp)
+		raw.SetTokenRefresh().SetExpirationTimestamp(exp).SetIsVerified(claim.IsVerified)
 	}
 
 	token, err = jwt.NewWithClaims(jwt.SigningMethodHS256, raw.claims).SignedString(i.prv)

@@ -1,0 +1,65 @@
+post:
+  tags:
+    - Passport verification
+  summary: Verify passport
+  security:
+    - JWTAuth: [ ]
+  description: |
+    Verify passport with ZKP.
+    One passport can't be verified twice.
+  operationId: verifyPassport
+  parameters:
+    - in: header
+      name: Signature
+      description: Signature of the request
+      required: true
+      schema:
+        type: string
+        pattern: '^[a-f0-9]{64}$'
+  requestBody:
+    required: true
+    content:
+      application/vnd.api+json:
+        schema:
+          type: object
+          required:
+            - data
+          properties:
+            data:
+              $ref: '#/components/schemas/VerifyPassport'
+  responses:
+    200:
+      description: Success
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                $ref: '#/components/schemas/Token'
+    400:
+      $ref: '#/components/responses/invalidParameter'
+    401:
+      $ref: '#/components/responses/invalidAuth'
+    403:
+      description: Incorrect signature
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    409:
+      description: AnonymousID/Nullifier already used by another Nullifier/AnonymousID
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    429:
+      description: Passport already proven.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    500:
+      $ref: '#/components/responses/internalError'

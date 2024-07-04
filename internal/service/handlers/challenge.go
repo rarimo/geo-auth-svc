@@ -24,7 +24,7 @@ func RequestChallenge(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	challenge, err := Verifier(r).Challenge(new(big.Int).SetBytes(nullifierBytes).String())
+	challenge, err := AuthVerifier(r).Challenge(new(big.Int).SetBytes(nullifierBytes).String())
 	if err != nil {
 		Log(r).WithError(err).Error("failed to generate challenge")
 		ape.RenderErr(w, problems.InternalError())

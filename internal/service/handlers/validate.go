@@ -30,7 +30,8 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 			Attributes: resources.ValidationResultAttributes{
 				Claims: []resources.Claim{
 					{
-						Nullifier: claim.Nullifier,
+						Nullifier:  claim.Nullifier,
+						IsVerified: claim.IsVerified,
 					},
 				},
 			},

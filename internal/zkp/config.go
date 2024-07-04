@@ -1,47 +1,60 @@
 package zkp
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
+	"os"
+
 	"gitlab.com/distributed_lab/figure"
 	"gitlab.com/distributed_lab/kit/comfig"
 	"gitlab.com/distributed_lab/kit/kv"
 )
 
-type Verifierer interface {
-	Verifier() *Verifier
+type AuthVerifierer interface {
+	AuthVerifier() *AuthVerifier
 }
 
-func NewVerifierer(getter kv.Getter) Verifierer {
-	return &verifierer{
+func NewAuthVerifierer(getter kv.Getter) AuthVerifierer {
+	return &authVerifierer{
 		getter: getter,
 	}
 }
 
-type verifierer struct {
+type authVerifierer struct {
 	once   comfig.Once
 	getter kv.Getter
 }
 
-func (v *verifierer) Verifier() *Verifier {
+func (v *authVerifierer) AuthVerifier() *AuthVerifier {
 	return v.once.Do(func() interface{} {
 		cfg := struct {
-			Enabled bool `fig:"enabled"`
-		}{
-			Enabled: true,
-		}
+			VerificationKeyPath string `fig:"verification_key_path,required"`
+			Disabled            bool   `fig:"disabled"`
+		}{}
 
 		err := figure.
 			Out(&cfg).
-			From(kv.MustGetStringMap(v.getter, "verifier")).
+			From(kv.MustGetStringMap(v.getter, "auth_verifier")).
 			Please()
-
 		if err != nil {
-			panic(errors.WithMessage(err, "failed to figure out"))
+			panic(fmt.Errorf("failed to figure out: %w", err))
 		}
 
-		return &Verifier{
-			Enabled:    cfg.Enabled,
-			challenges: make(map[string]*Challenge),
+		if cfg.Disabled {
+			return &AuthVerifier{
+				Disabled:   true,
+				challenges: make(map[string]*Challenge),
+			}
 		}
-	}).(*Verifier)
+
+		verificationKey, err := os.ReadFile(cfg.VerificationKeyPath)
+		if err != nil {
+			panic(fmt.Errorf("failed to read verification key from file %q: %w", cfg.VerificationKeyPath, err))
+		}
+
+		return &AuthVerifier{
+			VerificationKey: verificationKey[:],
+			Disabled:        false,
+			challenges:      make(map[string]*Challenge),
+		}
+	}).(*AuthVerifier)
 }
