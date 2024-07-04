@@ -2,6 +2,9 @@ log:
   level: debug
   disable_sentry: true
 
+db:
+  url: postgres://auth:auth@localhost:5432/auth?sslmode=disable
+
 listener:
   addr: :8000
 
@@ -15,6 +18,22 @@ cookies:
   secure: true
   same_site: 4
 
-verifier:
-  schema: 12345
-  enabled: false
+auth_verifier:
+  verification_key_path: "./auth_verification_key.json"
+  disabled: true
+
+passport_verifier:
+  verification_key_path: "./passport_verification_key.json"
+  allowed_age: 18
+  allowed_identity_timestamp: 1715698750
+
+root_verifier:
+  rpc: evm_rpc_url
+  contract: registration_contract_address
+  request_timeout: 10s
+
+sig_verifier:
+  verification_key: hex_key_without_0x
+
+points:
+  url: http://127.0.0.1:8000/

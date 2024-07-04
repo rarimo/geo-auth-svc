@@ -25,6 +25,7 @@ const EventID = "211985299740800702300256033401632392934377086534111448880928528
 const ChallengeExpirationDelta = 5 * time.Minute
 
 var NullifierRegexp = regexp.MustCompile("^0x[0-9a-fA-F]{64}$")
+var AIDRegexp = regexp.MustCompile("^[0-9a-f]{64}$")
 
 type Challenge struct {
 	Value    string

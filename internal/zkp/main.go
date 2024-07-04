@@ -9,30 +9,22 @@ import (
 	"time"
 
 	zkptypes "github.com/iden3/go-rapidsnark/types"
+
 	"github.com/iden3/go-rapidsnark/verifier"
-	"github.com/rarimo/geo-auth-svc/pkg/circuit"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
-var verificationKey []byte
-
-func init() {
-	var err error
-	if verificationKey, err = circuit.VerificationKey.ReadFile(circuit.VerificationKeyFileName); err != nil {
-		panic(errors.Wrap(err, fmt.Sprintf("failed to parse: %s", circuit.VerificationKeyFileName)))
-	}
-}
-
-type Verifier struct {
+type AuthVerifier struct {
 	mu sync.Mutex
 
-	Enabled bool
+	VerificationKey []byte
+	Disabled        bool
 
 	// Map for storing challenges to be verified in auth proofs. No need to store in db - very short-live data.
 	challenges map[string]*Challenge
 }
 
-func (v *Verifier) Challenge(user string) (string, error) {
+func (v *AuthVerifier) Challenge(user string) (string, error) {
 	challenge := make([]byte, 31)
 	if _, err := rand.Read(challenge); err != nil {
 		return "", err
@@ -53,7 +45,7 @@ func (v *Verifier) Challenge(user string) (string, error) {
 }
 
 // VerifyProof performs ZK Groth16 proof verification based on specified verification key and hardcoded/passed parameters.
-func (v *Verifier) VerifyProof(user string, proof *zkptypes.ZKProof) (err error) {
+func (v *AuthVerifier) VerifyProof(user string, proof *zkptypes.ZKProof) (err error) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 
@@ -66,7 +58,7 @@ func (v *Verifier) VerifyProof(user string, proof *zkptypes.ZKProof) (err error)
 		return ErrChallengeIsInvalid
 	}
 
-	if !v.Enabled {
+	if v.Disabled {
 		return nil
 	}
 
@@ -83,7 +75,7 @@ func (v *Verifier) VerifyProof(user string, proof *zkptypes.ZKProof) (err error)
 		return fmt.Errorf("expected challenge=%s, got %s", chalDec, proof.PubSignals[EventDataSignalsIndex])
 	}
 
-	if err = verifier.VerifyGroth16(*proof, verificationKey); err != nil {
+	if err = verifier.VerifyGroth16(*proof, v.VerificationKey); err != nil {
 		return errors.Wrap(err, "failed to verify generated proof")
 	}
 

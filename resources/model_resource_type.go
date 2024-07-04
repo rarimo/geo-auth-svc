@@ -8,8 +8,10 @@ type ResourceType string
 
 // List of ResourceType
 const (
-	AUTHORIZE  ResourceType = "authorize"
-	CHALLENGE  ResourceType = "challenge"
-	TOKEN      ResourceType = "token"
-	VALIDATION ResourceType = "validation"
+	AUTHORIZE       ResourceType = "authorize"
+	CHALLENGE       ResourceType = "challenge"
+	JOIN_PROGRAM    ResourceType = "join_program"
+	TOKEN           ResourceType = "token"
+	VALIDATION      ResourceType = "validation"
+	VERIFY_PASSPORT ResourceType = "verify_passport"
 )

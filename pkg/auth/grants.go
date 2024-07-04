@@ -9,3 +9,9 @@ func UserGrant(nullifier string) Grant {
 		return claim.Nullifier == nullifier
 	}
 }
+
+func VerifiedGrant(nullifier string) Grant {
+	return func(claim resources.Claim) bool {
+		return claim.Nullifier == nullifier && claim.IsVerified
+	}
+}

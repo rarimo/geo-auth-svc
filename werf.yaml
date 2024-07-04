@@ -2,7 +2,7 @@ configVersion: 1
 project: "geo-auth-svc"
 ---
 image: builder
-from: golang:1.21-alpine
+from: golang:1.22-alpine
 docker:
   WORKDIR: /go/src/github.com/rarimo/geo-auth-svc
 git:
@@ -42,4 +42,12 @@ import:
   - image: builder
     add: /usr/local/bin/geo-auth-svc
     to: /usr/local/bin/geo-auth-svc
+    after: setup
+  - image: builder
+    add: /go/src/github.com/rarimo/geo-points-svc/passport_verification_key.json
+    to: /passport_verification_key.json
+    after: setup
+  - image: builder
+    add: /go/src/github.com/rarimo/geo-points-svc/auth_verification_key.json
+    to: /auth_verification_key.json
     after: setup
