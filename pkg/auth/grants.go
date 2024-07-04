@@ -15,3 +15,7 @@ func VerifiedGrant(nullifier string) Grant {
 		return claim.Nullifier == nullifier && claim.IsVerified
 	}
 }
+
+func AdminGrant(claim resources.Claim) bool {
+	return claim.IsAdmin
+}

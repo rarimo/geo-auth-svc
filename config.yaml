@@ -36,4 +36,5 @@ sig_verifier:
   verification_key: hex_key_without_0x
 
 points:
+  admin: 0x8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
   url: http://127.0.0.1:8000/
