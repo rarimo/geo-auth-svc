@@ -2,6 +2,8 @@ post:
   tags:
     - Passport verification
   summary: Join program
+  security:
+    - JWTAuth: [ ]
   description: Join rewards program
   operationId: joinProgram
   parameters:
@@ -39,14 +41,20 @@ post:
       $ref: '#/components/responses/invalidParameter'
     401:
       $ref: '#/components/responses/invalidAuth'
-    404:
-      description: Balance not exists.
+    403:
+      description: Incorrect signature
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    409:
+      description: AnonymousID/Nullifier already used by another Nullifier/AnonymousID
       content:
         application/vnd.api+json:
           schema:
             $ref: '#/components/schemas/Errors'
     429:
-      description: Passport already verified or event absent for user.
+      description: Passport already verified.
       content:
         application/vnd.api+json:
           schema:

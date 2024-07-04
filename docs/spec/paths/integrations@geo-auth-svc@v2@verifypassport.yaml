@@ -2,6 +2,8 @@ post:
   tags:
     - Passport verification
   summary: Verify passport
+  security:
+    - JWTAuth: [ ]
   description: |
     Verify passport with ZKP.
     One passport can't be verified twice.
@@ -41,14 +43,20 @@ post:
       $ref: '#/components/responses/invalidParameter'
     401:
       $ref: '#/components/responses/invalidAuth'
-    404:
-      description: Balance not exists.
+    403:
+      description: Incorrect signature
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    409:
+      description: AnonymousID/Nullifier already used by another Nullifier/AnonymousID
       content:
         application/vnd.api+json:
           schema:
             $ref: '#/components/schemas/Errors'
     429:
-      description: Passport already verified or event absent for user.
+      description: Passport already proven.
       content:
         application/vnd.api+json:
           schema:

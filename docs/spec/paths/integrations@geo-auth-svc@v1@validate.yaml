@@ -21,9 +21,5 @@ get:
                 type: array
                 items:
                   $ref: '#/components/schemas/ValidationResult'
-    400:
-      $ref: '#/components/responses/invalidParameter'
     401:
       $ref: '#/components/responses/invalidAuth'
-    500:
-      $ref: '#/components/responses/internalError'

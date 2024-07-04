@@ -46,63 +46,25 @@ func Authorize(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	accessJWT := &jwt.AuthClaim{
-		Nullifier:  req.Data.ID,
-		Type:       jwt.AccessTokenType,
-		IsVerified: Points(r).DefaultVerified,
-	}
-
-	refreshJWT := &jwt.AuthClaim{
-		Nullifier:  req.Data.ID,
-		Type:       jwt.RefreshTokenType,
-		IsVerified: Points(r).DefaultVerified,
-	}
+	verified := Points(r).DefaultVerified
 
 	if !Points(r).Disabled {
-		verified, err := findOutVerificationStatus(r, req)
+		verified, err = findOutVerificationStatus(r, req)
 		if err != nil {
 			Log(r).WithError(err).Warnf("failed to find out passport verification status for [%s]; IsVerified set to false", req.Data.ID)
 		}
-		accessJWT.IsVerified = verified
-		refreshJWT.IsVerified = verified
 	}
 
-	access, aexp, err := JWT(r).IssueJWT(accessJWT)
+	access, refresh, aexp, rexp, err := issueJWTs(r, req.Data.ID, verified)
 	if err != nil {
-		Log(r).WithError(err).WithField("user", req.Data.ID).Error("failed to issuer JWT token")
+		Log(r).WithError(err).WithField("user", req.Data.ID).Error("failed to issue JWTs")
 		ape.RenderErr(w, problems.InternalError())
 		return
-	}
-
-	refresh, rexp, err := JWT(r).IssueJWT(refreshJWT)
-	if err != nil {
-		Log(r).WithError(err).WithField("user", req.Data.ID).Error("failed to issuer JWT token")
-		ape.RenderErr(w, problems.InternalError())
-		return
-	}
-
-	resp := resources.TokenResponse{
-		Data: resources.Token{
-			Key: resources.Key{
-				ID:   req.Data.ID,
-				Type: resources.TOKEN,
-			},
-			Attributes: resources.TokenAttributes{
-				AccessToken: resources.Jwt{
-					Token:     access,
-					TokenType: string(jwt.AccessTokenType),
-				},
-				RefreshToken: resources.Jwt{
-					Token:     refresh,
-					TokenType: string(jwt.RefreshTokenType),
-				},
-			},
-		},
 	}
 
 	Cookies(r).SetAccessToken(w, access, aexp)
 	Cookies(r).SetRefreshToken(w, refresh, rexp)
-	ape.Render(w, resp)
+	ape.Render(w, newTokenResponse(req.Data.ID, access, refresh))
 }
 
 func findOutVerificationStatus(r *http.Request, req *resources.AuthorizeRequest) (bool, error) {
