@@ -4,3 +4,4 @@
 /docs/web_deploy/
 
 config.*.yaml
+*.*.yaml

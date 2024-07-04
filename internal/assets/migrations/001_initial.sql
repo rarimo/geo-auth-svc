@@ -12,9 +12,6 @@ CREATE TABLE IF NOT EXISTS users
     updated_at         TIMESTAMP NOT NULL DEFAULT (NOW() AT TIME ZONE 'utc')
 );
 
-CREATE INDEX IF NOT EXISTS users_nullifier_index ON users (nullifier);
-CREATE INDEX IF NOT EXISTS anonymous_id ON users (anonymous_id);
-
 DROP TRIGGER IF EXISTS set_updated_at ON users;
 CREATE TRIGGER set_updated_at
     BEFORE UPDATE

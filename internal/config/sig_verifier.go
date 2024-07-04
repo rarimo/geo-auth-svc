@@ -1,9 +1,9 @@
 package config
 
 import (
-	"encoding/hex"
 	"fmt"
 
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"gitlab.com/distributed_lab/figure/v3"
 	"gitlab.com/distributed_lab/kit/kv"
 )
@@ -21,11 +21,6 @@ func (c *config) SigVerifier() []byte {
 			panic(fmt.Errorf("failed to figure out sig_verifier: %w", err))
 		}
 
-		key, err := hex.DecodeString(cfg.VerificationKey)
-		if err != nil {
-			panic(fmt.Errorf("verification_key is not a hex: %w", err))
-		}
-
-		return key
+		return hexutil.MustDecode(cfg.VerificationKey)
 	}).([]byte)
 }

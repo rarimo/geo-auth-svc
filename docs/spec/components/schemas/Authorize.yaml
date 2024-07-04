@@ -12,5 +12,5 @@ allOf:
         properties:
           proof:
             type: object
-            format: json.RawMessage
-            description: JSON-encoded Query ZK-proof.
+            format: types.ZKProof
+            description: Query ZK passport verification proof.

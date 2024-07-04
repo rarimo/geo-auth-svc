@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	zkptypes "github.com/iden3/go-rapidsnark/types"
 	"github.com/rarimo/geo-auth-svc/internal/jwt"
 	"github.com/rarimo/geo-auth-svc/internal/service/requests"
 	"github.com/rarimo/geo-auth-svc/resources"
@@ -27,18 +26,9 @@ func Authorize(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !AuthVerifier(r).Disabled {
-		var proof zkptypes.ZKProof
-		if err := json.Unmarshal(req.Data.Attributes.Proof, &proof); err != nil {
-			ape.RenderErr(w, problems.BadRequest(err)...)
-			return
-		}
-
-		nullifier, err := hexutil.Decode(req.Data.ID)
-		if err != nil {
-			ape.RenderErr(w, problems.BadRequest(err)...)
-			return
-		}
-
+		proof := req.Data.Attributes.Proof
+		// never panic because of request validation
+		nullifier := hexutil.MustDecode(req.Data.ID)
 		if err = AuthVerifier(r).VerifyProof(new(big.Int).SetBytes(nullifier).String(), &proof); err != nil {
 			Log(r).WithError(err).Info("Failed to verify proof")
 			ape.RenderErr(w, problems.Unauthorized())

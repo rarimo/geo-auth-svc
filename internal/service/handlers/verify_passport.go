@@ -77,20 +77,11 @@ func VerifyPassport(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if (byNullifier == nil || byAnonymousID == nil || byNullifier.Nullifier != byAnonymousID.Nullifier) && (byNullifier != nil || byAnonymousID != nil) {
-		if byAnonymousID == nil {
-			log.Warnf("byNullifier present, while byAnonymousID absent: nullifier=%s, AID=%s", nullifier, anonymousID)
-			ape.RenderErr(w, problems.Conflict())
-			return
-		}
-
-		if byNullifier == nil {
-			log.Warnf("byAnonymousID present, while byNullifier absent: nullifier=%s, AID=%s", nullifier, anonymousID)
-			ape.RenderErr(w, problems.Conflict())
-			return
-		}
-
-		log.Warnf("byAnonymousID and byNullifier must point to the same record: nullifier=%s, AID=%s", nullifier, anonymousID)
+	if reason := validateScanAbility(byNullifier, byAnonymousID); reason != "" {
+		log.WithFields(map[string]interface{}{
+			"nullifier": nullifier,
+			"AID":       anonymousID,
+		}).Warn(reason)
 		ape.RenderErr(w, problems.Conflict())
 		return
 	}
@@ -115,29 +106,17 @@ func VerifyPassport(w http.ResponseWriter, r *http.Request) {
 			ape.RenderErr(w, problems.InternalError())
 			return
 		}
-
-		access, refresh, aexp, rexp, err := issueJWTs(r, req.Data.ID, true)
+	} else {
+		err = UsersQ(r).Insert(data.User{
+			Nullifier:   nullifier,
+			AnonymousID: anonymousID,
+			IsProven:    true,
+		})
 		if err != nil {
-			Log(r).WithError(err).WithField("user", req.Data.ID).Error("failed to issue JWTs")
+			Log(r).WithError(err).Error("failed to insert user")
 			ape.RenderErr(w, problems.InternalError())
 			return
 		}
-
-		Cookies(r).SetAccessToken(w, access, aexp)
-		Cookies(r).SetRefreshToken(w, refresh, rexp)
-		ape.Render(w, newTokenResponse(req.Data.ID, access, refresh))
-		return
-	}
-
-	err = UsersQ(r).Insert(data.User{
-		Nullifier:   nullifier,
-		AnonymousID: anonymousID,
-		IsProven:    true,
-	})
-	if err != nil {
-		Log(r).WithError(err).Error("failed to insert user")
-		ape.RenderErr(w, problems.InternalError())
-		return
 	}
 
 	access, refresh, aexp, rexp, err := issueJWTs(r, req.Data.ID, true)
@@ -172,4 +151,16 @@ func calculatePassportVerificationSignature(key []byte, nullifier, anonymousID s
 
 func mustHexToInt(s string) string {
 	return new(big.Int).SetBytes(hexutil.MustDecode(s)).String()
+}
+
+func validateScanAbility(byNull, byAID *data.User) (reason string) {
+	switch {
+	case byNull == nil && byAID != nil:
+		return "byAnonymousID present, while byNullifier absent"
+	case byNull != nil && byAID == nil:
+		return "byNullifier present, while byAnonymousID absent"
+	case byNull != nil && byAID != nil && byNull.Nullifier != byAID.Nullifier:
+		return "byAnonymousID and byNullifier must point to the same record"
+	}
+	return ""
 }
