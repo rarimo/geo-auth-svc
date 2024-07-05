@@ -117,6 +117,70 @@
         }
       }
     },
+    "/integrations/geo-auth-svc/v1/authorize/admin": {
+      "post": {
+        "tags": [
+          "Authorize"
+        ],
+        "summary": "Authorize admin user",
+        "description": "Authorize admin user using password",
+        "operationId": "authorizeAdmin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/vnd.api+json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/AuthorizeAdmin"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Token"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameter"
+          },
+          "401": {
+            "description": "Invalid password",
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/internalError"
+          }
+        }
+      }
+    },
     "/integrations/geo-auth-svc/v1/refresh": {
       "get": {
         "tags": [
@@ -503,6 +567,49 @@
           }
         ]
       },
+      "AuthorizeAdmin": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AuthorizeAdminKey"
+          },
+          {
+            "type": "object",
+            "x-go-is-request": true,
+            "required": [
+              "attributes"
+            ],
+            "properties": {
+              "attributes": {
+                "required": [
+                  "password"
+                ],
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "example": "whoami",
+                    "description": "Password to get admin permissions"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "AuthorizeAdminKey": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "authorize_admin"
+            ]
+          }
+        }
+      },
       "AuthorizeKey": {
         "type": "object",
         "required": [
@@ -577,7 +684,8 @@
         "type": "object",
         "required": [
           "nullifier",
-          "is_verified"
+          "is_verified",
+          "is_admin"
         ],
         "properties": {
           "nullifier": {
@@ -590,6 +698,11 @@
             "type": "bool",
             "example": true,
             "description": "Whether the user has a scanned passport"
+          },
+          "is_admin": {
+            "type": "bool",
+            "example": false,
+            "description": "Whether the user has a admin permissions"
           }
         }
       },
