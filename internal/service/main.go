@@ -8,6 +8,7 @@ import (
 	"github.com/rarimo/geo-auth-svc/internal/cookies"
 	"github.com/rarimo/geo-auth-svc/internal/jwt"
 	"github.com/rarimo/geo-auth-svc/internal/zkp"
+	"github.com/rarimo/geo-auth-svc/pkg/hmacsig"
 	zk "github.com/rarimo/zkverifier-kit"
 	"gitlab.com/distributed_lab/kit/pgdb"
 	"gitlab.com/distributed_lab/logan/v3"
@@ -21,7 +22,7 @@ type service struct {
 	passportVerifier *zk.Verifier
 	cookies          *cookies.Cookies
 	db               *pgdb.DB
-	sigVerifier      []byte
+	sigCalculator    hmacsig.Calculator
 	points           *config.Points
 }
 
@@ -40,7 +41,7 @@ func newService(cfg config.Config) *service {
 		passportVerifier: cfg.PassportVerifier(),
 		cookies:          cfg.Cookies(),
 		db:               cfg.DB(),
-		sigVerifier:      cfg.SigVerifier(),
+		sigCalculator:    cfg.SigCalculator(),
 		points:           cfg.Points(),
 	}
 }

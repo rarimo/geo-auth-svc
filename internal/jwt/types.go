@@ -11,6 +11,7 @@ const (
 	ExpirationTimestampClaimName = "exp"
 	TokenTypeClaimName           = "type"
 	IsVerifiedClaimName          = "verified"
+	IsAdminClaimName             = "admin"
 )
 
 type TokenType string
@@ -29,6 +30,7 @@ type AuthClaim struct {
 	Nullifier  string
 	Type       TokenType
 	IsVerified bool
+	IsAdmin    bool
 }
 
 // RawJWT represents helper structure to provide setter and getter methods to work with JWT claims
@@ -50,6 +52,11 @@ func (r *RawJWT) SetExpirationTimestamp(expiration time.Time) *RawJWT {
 
 func (r *RawJWT) SetIsVerified(isVerified bool) *RawJWT {
 	r.claims[IsVerifiedClaimName] = isVerified
+	return r
+}
+
+func (r *RawJWT) SetIsAdmin(isAdmin bool) *RawJWT {
+	r.claims[IsAdminClaimName] = isAdmin
 	return r
 }
 
@@ -80,6 +87,17 @@ func (r *RawJWT) IsVerified() (res bool, ok bool) {
 	var val interface{}
 
 	if val, ok = r.claims[IsVerifiedClaimName]; !ok {
+		return
+	}
+
+	res, ok = val.(bool)
+	return
+}
+
+func (r *RawJWT) IsAdmin() (res bool, ok bool) {
+	var val interface{}
+
+	if val, ok = r.claims[IsAdminClaimName]; !ok {
 		return
 	}
 

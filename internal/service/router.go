@@ -20,7 +20,7 @@ func (s *service) router() chi.Router {
 			handlers.CtxJWT(s.jwt),
 			handlers.CtxAuthVerifier(s.authVerifier),
 			handlers.CtxPassportVerifier(s.passportVerifier),
-			handlers.CtxSigVerifier(s.sigVerifier),
+			handlers.CtxSigCalculator(s.sigCalculator),
 			handlers.CtxCookies(s.cookies),
 			handlers.CtxUsersQ(pg.NewUsersQ(s.db.Clone())),
 			handlers.CtxPoints(s.points),
@@ -34,8 +34,11 @@ func (s *service) router() chi.Router {
 			r.With(middleware.AuthMiddleware(s.jwt, s.log, jwt.AccessTokenType)).Post("/joinprogram", handlers.JoinProgram)
 		})
 		r.Route("/v1", func(r chi.Router) {
-			r.Post("/authorize", handlers.Authorize)
-			r.Get("/authorize/{nullifier}/challenge", handlers.RequestChallenge)
+			r.Route("/authorize", func(r chi.Router) {
+				r.Post("/admin", handlers.AuthorizeAdmin)
+				r.Post("/", handlers.Authorize)
+				r.Get("/{nullifier}/challenge", handlers.RequestChallenge)
+			})
 			r.With(middleware.AuthMiddleware(s.jwt, s.log, jwt.AccessTokenType)).Get("/validate", handlers.Validate)
 			r.With(middleware.AuthMiddleware(s.jwt, s.log, jwt.RefreshTokenType)).Get("/refresh", handlers.Refresh)
 		})

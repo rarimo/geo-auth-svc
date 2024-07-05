@@ -32,6 +32,9 @@ func (i *JWTIssuer) IssueJWT(claim *AuthClaim) (token string, exp time.Time, err
 		exp = exp.Add(i.refreshExpiration)
 		raw.SetTokenRefresh().SetExpirationTimestamp(exp).SetIsVerified(claim.IsVerified)
 	}
+	if claim.IsAdmin {
+		raw.SetIsAdmin(true)
+	}
 
 	token, err = jwt.NewWithClaims(jwt.SigningMethodHS256, raw.claims).SignedString(i.prv)
 	return
@@ -68,6 +71,14 @@ func (i *JWTIssuer) ValidateJWT(str string) (claim *AuthClaim, err error) {
 		err = errors.New("invalid nullifier: failed to parse")
 		return
 	}
+
+	claim.IsVerified, ok = raw.IsVerified()
+	if !ok {
+		err = errors.New("invalid isVerified: failed to parse")
+		return
+	}
+
+	claim.IsAdmin, _ = raw.IsAdmin()
 
 	claim.Type, ok = raw.TokenType()
 	if !ok {

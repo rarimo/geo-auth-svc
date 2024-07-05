@@ -4,6 +4,7 @@ import (
 	"github.com/rarimo/geo-auth-svc/internal/cookies"
 	"github.com/rarimo/geo-auth-svc/internal/jwt"
 	"github.com/rarimo/geo-auth-svc/internal/zkp"
+	"github.com/rarimo/geo-auth-svc/pkg/hmacsig"
 	zk "github.com/rarimo/zkverifier-kit"
 	"github.com/rarimo/zkverifier-kit/identity"
 	"gitlab.com/distributed_lab/kit/comfig"
@@ -19,10 +20,10 @@ type Config interface {
 	jwt.Jwter
 	zkp.AuthVerifierer
 	cookies.Cookier
+	hmacsig.SigCalculatorProvider
 
 	Points() *Points
 	PassportVerifier() *zk.Verifier
-	SigVerifier() []byte
 }
 
 type config struct {
@@ -30,27 +31,28 @@ type config struct {
 	comfig.Listenerer
 	pgdb.Databaser
 
-	identity.VerifierProvider
+	identity.VerifierProvider // used internally
 
 	jwt.Jwter
 	zkp.AuthVerifierer
 	cookies.Cookier
+	hmacsig.SigCalculatorProvider
 
 	points           comfig.Once
 	passportVerifier comfig.Once
-	sigVerifier      comfig.Once
 	getter           kv.Getter
 }
 
 func New(getter kv.Getter) Config {
 	return &config{
-		getter:           getter,
-		Databaser:        pgdb.NewDatabaser(getter),
-		Listenerer:       comfig.NewListenerer(getter),
-		Logger:           comfig.NewLogger(getter, comfig.LoggerOpts{}),
-		Jwter:            jwt.NewJwter(getter),
-		AuthVerifierer:   zkp.NewAuthVerifierer(getter),
-		VerifierProvider: identity.NewVerifierProvider(getter),
-		Cookier:          cookies.NewCookier(getter),
+		getter:                getter,
+		Databaser:             pgdb.NewDatabaser(getter),
+		Listenerer:            comfig.NewListenerer(getter),
+		Logger:                comfig.NewLogger(getter, comfig.LoggerOpts{}),
+		Jwter:                 jwt.NewJwter(getter),
+		AuthVerifierer:        zkp.NewAuthVerifierer(getter),
+		VerifierProvider:      identity.NewVerifierProvider(getter),
+		Cookier:               cookies.NewCookier(getter),
+		SigCalculatorProvider: hmacsig.NewCalculatorProvider(getter),
 	}
 }

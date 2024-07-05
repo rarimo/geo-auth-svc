@@ -32,6 +32,7 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 					{
 						Nullifier:  claim.Nullifier,
 						IsVerified: claim.IsVerified,
+						IsAdmin:    claim.IsAdmin,
 					},
 				},
 			},
