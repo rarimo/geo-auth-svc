@@ -9,6 +9,7 @@ import (
 	"github.com/rarimo/geo-auth-svc/internal/data"
 	"github.com/rarimo/geo-auth-svc/internal/jwt"
 	"github.com/rarimo/geo-auth-svc/internal/zkp"
+	"github.com/rarimo/geo-auth-svc/pkg/hmacsig"
 	zk "github.com/rarimo/zkverifier-kit"
 	"gitlab.com/distributed_lab/logan/v3"
 )
@@ -23,7 +24,7 @@ const (
 	passportVerifierKey
 	cookiesKey
 	usersQKey
-	sigVerifierKey
+	sigCalculatorKey
 	pointsKey
 )
 
@@ -69,9 +70,9 @@ func CtxUsersQ(usersQ data.UsersQ) func(context.Context) context.Context {
 	}
 }
 
-func CtxSigVerifier(sigVerifier []byte) func(context.Context) context.Context {
+func CtxSigCalculator(calc hmacsig.Calculator) func(context.Context) context.Context {
 	return func(ctx context.Context) context.Context {
-		return context.WithValue(ctx, sigVerifierKey, sigVerifier)
+		return context.WithValue(ctx, sigCalculatorKey, calc)
 	}
 }
 
@@ -109,8 +110,8 @@ func UsersQ(r *http.Request) data.UsersQ {
 	return r.Context().Value(usersQKey).(data.UsersQ).New()
 }
 
-func SigVerifier(r *http.Request) []byte {
-	return r.Context().Value(sigVerifierKey).([]byte)
+func SigCalculator(r *http.Request) hmacsig.Calculator {
+	return r.Context().Value(sigCalculatorKey).(hmacsig.Calculator)
 }
 
 func Points(r *http.Request) *config.Points {

@@ -1,11 +1,7 @@
 package handlers
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
 	"errors"
-	"fmt"
 	"math/big"
 	"net/http"
 
@@ -44,7 +40,7 @@ func VerifyPassport(w http.ResponseWriter, r *http.Request) {
 	}
 
 	gotSig := r.Header.Get("Signature")
-	wantSig, err := calculatePassportVerificationSignature(SigVerifier(r), req.Data.ID, anonymousID)
+	wantSig, err := SigCalculator(r).PassportVerificationSignature(req.Data.ID, anonymousID)
 	if err != nil { // must never happen due to preceding validation
 		Log(r).WithError(err).Error("Failed to calculate HMAC signature")
 		ape.RenderErr(w, problems.InternalError())
@@ -129,24 +125,6 @@ func VerifyPassport(w http.ResponseWriter, r *http.Request) {
 	Cookies(r).SetAccessToken(w, access, aexp)
 	Cookies(r).SetRefreshToken(w, refresh, rexp)
 	ape.Render(w, newTokenResponse(req.Data.ID, access, refresh))
-}
-
-func calculatePassportVerificationSignature(key []byte, nullifier, anonymousID string) (string, error) {
-	bNull, err := hex.DecodeString(nullifier[2:])
-	if err != nil {
-		return "", fmt.Errorf("nullifier is not hex: %w", err)
-	}
-
-	bAID, err := hex.DecodeString(anonymousID)
-	if err != nil {
-		return "", fmt.Errorf("anonymousID is not hex: %w", err)
-	}
-
-	h := hmac.New(sha256.New, key)
-	msg := append(bNull, bAID...)
-	h.Write(msg)
-
-	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
 func mustHexToInt(s string) string {

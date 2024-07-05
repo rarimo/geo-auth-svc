@@ -33,7 +33,7 @@ func JoinProgram(w http.ResponseWriter, r *http.Request) {
 	}
 
 	gotSig := r.Header.Get("Signature")
-	wantSig, err := calculatePassportVerificationSignature(SigVerifier(r), req.Data.ID, anonymousID)
+	wantSig, err := SigCalculator(r).PassportVerificationSignature(req.Data.ID, anonymousID)
 	if err != nil { // must never happen due to preceding validation
 		Log(r).WithError(err).Error("Failed to calculate HMAC signature")
 		ape.RenderErr(w, problems.InternalError())

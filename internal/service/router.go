@@ -20,7 +20,7 @@ func (s *service) router() chi.Router {
 			handlers.CtxJWT(s.jwt),
 			handlers.CtxAuthVerifier(s.authVerifier),
 			handlers.CtxPassportVerifier(s.passportVerifier),
-			handlers.CtxSigVerifier(s.sigVerifier),
+			handlers.CtxSigCalculator(s.sigCalculator),
 			handlers.CtxCookies(s.cookies),
 			handlers.CtxUsersQ(pg.NewUsersQ(s.db.Clone())),
 			handlers.CtxPoints(s.points),
