@@ -170,126 +170,10 @@ paths:
     post:
       tags:
         - Authorize
-      summary: Authorize user V2
+      summary: Authorize V2
       description: |
-        Authorize user by ZKP and receive JWT.
-      operationId: authorizeV2
-      requestBody:
-        required: true
-        content:
-          application/vnd.api+json:
-            schema:
-              type: object
-              required:
-                - data
-              properties:
-                data:
-                  $ref: '#/components/schemas/Authorize'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/vnd.api+json:
-              schema:
-                type: object
-                required:
-                  - data
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Token'
-        '400':
-          $ref: '#/components/responses/invalidParameter'
-        '401':
-          description: Invalid proof
-          content:
-            application/vnd.api+json:
-              schema:
-                $ref: '#/components/schemas/Errors'
-        '500':
-          $ref: '#/components/responses/internalError'
-  /integrations/geo-auth-svc/v2/joinprogram:
-    post:
-      tags:
-        - Passport verification
-      summary: Join program
-      security:
-        - JWTAuth: []
-      description: Join rewards program
-      operationId: joinProgram
-      parameters:
-        - in: header
-          name: Signature
-          description: Signature of the request
-          required: true
-          schema:
-            type: string
-            pattern: '^[a-f0-9]{64}$'
-      requestBody:
-        required: true
-        content:
-          application/vnd.api+json:
-            schema:
-              type: object
-              required:
-                - data
-              properties:
-                data:
-                  $ref: '#/components/schemas/JoinProgram'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/vnd.api+json:
-              schema:
-                type: object
-                required:
-                  - data
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Token'
-        '400':
-          $ref: '#/components/responses/invalidParameter'
-        '401':
-          $ref: '#/components/responses/invalidAuth'
-        '403':
-          description: Incorrect signature
-          content:
-            application/vnd.api+json:
-              schema:
-                $ref: '#/components/schemas/Errors'
-        '409':
-          description: AnonymousID/Nullifier already used by another Nullifier/AnonymousID
-          content:
-            application/vnd.api+json:
-              schema:
-                $ref: '#/components/schemas/Errors'
-        '429':
-          description: Passport already verified.
-          content:
-            application/vnd.api+json:
-              schema:
-                $ref: '#/components/schemas/Errors'
-        '500':
-          $ref: '#/components/responses/internalError'
-  /integrations/geo-auth-svc/v2/verifypassport:
-    post:
-      tags:
-        - Passport verification
-      summary: Verify passport
-      security:
-        - JWTAuth: []
-      description: |
-        Verify passport with ZKP.
-        One passport can't be verified twice.
+        Authorize with passport ZKP
       operationId: verifyPassport
-      parameters:
-        - in: header
-          name: Signature
-          description: Signature of the request
-          required: true
-          schema:
-            type: string
-            pattern: '^[a-f0-9]{64}$'
       requestBody:
         required: true
         content:
@@ -315,26 +199,6 @@ paths:
                     $ref: '#/components/schemas/Token'
         '400':
           $ref: '#/components/responses/invalidParameter'
-        '401':
-          $ref: '#/components/responses/invalidAuth'
-        '403':
-          description: Incorrect signature
-          content:
-            application/vnd.api+json:
-              schema:
-                $ref: '#/components/schemas/Errors'
-        '409':
-          description: AnonymousID/Nullifier already used by another Nullifier/AnonymousID
-          content:
-            application/vnd.api+json:
-              schema:
-                $ref: '#/components/schemas/Errors'
-        '429':
-          description: Passport already proven.
-          content:
-            application/vnd.api+json:
-              schema:
-                $ref: '#/components/schemas/Errors'
         '500':
           $ref: '#/components/responses/internalError'
 components:
@@ -484,38 +348,6 @@ components:
                   - 404
                   - 409
                   - 500
-    JoinProgram:
-      allOf:
-        - $ref: '#/components/schemas/JoinProgramKey'
-        - type: object
-          x-go-is-request: true
-          required:
-            - attributes
-          properties:
-            attributes:
-              required:
-                - anonymous_id
-              type: object
-              properties:
-                anonymous_id:
-                  type: string
-                  description: Unique identifier of the passport.
-                  example: 2bd3a2532096fee10a45a40e444a11b4d00a707f3459376087747de05996fbf5
-    JoinProgramKey:
-      type: object
-      required:
-        - id
-        - type
-      properties:
-        id:
-          type: string
-          description: Nullifier of the points owner
-          example: 0x123...abc
-          pattern: '^0x[0-9a-fA-F]{64}$'
-        type:
-          type: string
-          enum:
-            - join_program
     JWT:
       description: JWT token
       type: object
@@ -605,14 +437,9 @@ components:
           properties:
             attributes:
               required:
-                - anonymous_id
                 - proof
               type: object
               properties:
-                anonymous_id:
-                  type: string
-                  description: Unique identifier of the passport.
-                  example: 2bd3a2532096fee10a45a40e444a11b4d00a707f3459376087747de05996fbf5
                 proof:
                   type: object
                   format: types.ZKProof
@@ -632,7 +459,7 @@ components:
         type:
           type: string
           enum:
-            - verify_passport
+            - authorize_v2
   responses:
     internalError:
       description: Internal server error
