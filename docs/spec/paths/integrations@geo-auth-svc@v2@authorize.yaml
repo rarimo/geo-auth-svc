@@ -1,10 +1,10 @@
 post:
   tags:
     - Authorize
-  summary: Authorize user V2
+  summary: Authorize V2
   description: |
-    Authorize user by ZKP and receive JWT.
-  operationId: authorizeV2
+    Authorize with passport ZKP
+  operationId: verifyPassport
   requestBody:
     required: true
     content:
@@ -15,10 +15,10 @@ post:
             - data
           properties:
             data:
-              $ref: '#/components/schemas/Authorize'
+              $ref: '#/components/schemas/VerifyPassport'
   responses:
     200:
-      description: OK
+      description: Success
       content:
         application/vnd.api+json:
           schema:
@@ -30,11 +30,5 @@ post:
                 $ref: '#/components/schemas/Token'
     400:
       $ref: '#/components/responses/invalidParameter'
-    401:
-      description: Invalid proof
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/Errors'
     500:
       $ref: '#/components/responses/internalError'

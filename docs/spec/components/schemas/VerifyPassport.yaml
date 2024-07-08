@@ -7,14 +7,9 @@ allOf:
     properties:
       attributes:
         required:
-          - anonymous_id
           - proof
         type: object
         properties:
-          anonymous_id:
-            type: string
-            description: Unique identifier of the passport.
-            example: "2bd3a2532096fee10a45a40e444a11b4d00a707f3459376087747de05996fbf5"
           proof:
             type: object
             format: types.ZKProof

@@ -5,7 +5,6 @@ go 1.22
 toolchain go1.22.2
 
 require (
-	github.com/Masterminds/squirrel v1.5.4
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/ethereum/go-ethereum v1.13.8
 	github.com/go-chi/chi v4.1.2+incompatible
@@ -15,8 +14,7 @@ require (
 	github.com/iden3/go-rapidsnark/types v0.0.3
 	github.com/iden3/go-rapidsnark/verifier v0.0.5
 	github.com/pkg/errors v0.9.1
-	github.com/rarimo/zkverifier-kit v1.0.0
-	github.com/rubenv/sql-migrate v1.6.1
+	github.com/rarimo/zkverifier-kit v1.1.0-rc.1
 	github.com/stretchr/testify v1.9.0
 	gitlab.com/distributed_lab/ape v1.7.1
 	gitlab.com/distributed_lab/figure v2.1.2+incompatible
@@ -45,7 +43,6 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/getsentry/raven-go v0.2.0 // indirect
 	github.com/getsentry/sentry-go v0.27.0 // indirect
-	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/jsonapi v0.0.0-20200226002910-c8283f632fb7 // indirect
@@ -53,10 +50,6 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/holiman/uint256 v1.2.4 // indirect
 	github.com/iden3/go-iden3-crypto v0.0.15 // indirect
-	github.com/jmoiron/sqlx v1.3.5 // indirect
-	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
-	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
-	github.com/lib/pq v1.10.9 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
@@ -77,7 +70,6 @@ require (
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	gitlab.com/distributed_lab/lorem v0.2.0 // indirect
-	gitlab.com/distributed_lab/running v1.6.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
 	golang.org/x/exp v0.0.0-20240404231335-c0f41cb1a7a0 // indirect

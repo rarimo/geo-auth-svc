@@ -117,3 +117,50 @@ type BalanceResponse struct {
 		} `json:"attributes"`
 	} `json:"data"`
 }
+
+func newTokenResponse(nullifier, access, refresh string) resources.TokenResponse {
+	return resources.TokenResponse{
+		Data: resources.Token{
+			Key: resources.Key{
+				ID:   nullifier,
+				Type: resources.TOKEN,
+			},
+			Attributes: resources.TokenAttributes{
+				AccessToken: resources.Jwt{
+					Token:     access,
+					TokenType: string(jwt.AccessTokenType),
+				},
+				RefreshToken: resources.Jwt{
+					Token:     refresh,
+					TokenType: string(jwt.RefreshTokenType),
+				},
+			},
+		},
+	}
+}
+
+func issueJWTs(r *http.Request, nullifier string, verified bool) (access, refresh string, aexp, rexp time.Time, err error) {
+	access, aexp, err = JWT(r).IssueJWT(
+		&jwt.AuthClaim{
+			Nullifier:  nullifier,
+			Type:       jwt.AccessTokenType,
+			IsVerified: verified,
+		},
+	)
+	if err != nil {
+		return "", "", aexp, rexp, fmt.Errorf("failed to issue JWT access token: %w", err)
+	}
+
+	refresh, rexp, err = JWT(r).IssueJWT(
+		&jwt.AuthClaim{
+			Nullifier:  nullifier,
+			Type:       jwt.RefreshTokenType,
+			IsVerified: verified,
+		},
+	)
+	if err != nil {
+		return "", "", aexp, rexp, fmt.Errorf("failed to issue JWT access token: %w", err)
+	}
+
+	return access, refresh, aexp, rexp, nil
+}
