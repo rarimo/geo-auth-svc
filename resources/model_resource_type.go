@@ -11,8 +11,7 @@ const (
 	AUTHORIZE_ADMIN ResourceType = "authorize_admin"
 	AUTHORIZE       ResourceType = "authorize"
 	CHALLENGE       ResourceType = "challenge"
-	JOIN_PROGRAM    ResourceType = "join_program"
 	TOKEN           ResourceType = "token"
 	VALIDATION      ResourceType = "validation"
-	VERIFY_PASSPORT ResourceType = "verify_passport"
+	AUTHORIZE_V2    ResourceType = "authorize_v2"
 )
