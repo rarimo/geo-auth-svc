@@ -41,6 +41,7 @@ func (c *config) PassportVerifier() *zk.Verifier {
 			zk.WithIdentitiesCounter(maxIdentityCount),
 			zk.WithIdentitiesCreationTimestampLimit(cfg.AllowedIdentityTimestamp),
 			zk.WithDocumentType(documentTypeID),
+			zk.WithCitizenships("GEO"),
 		)
 
 		if err != nil {
