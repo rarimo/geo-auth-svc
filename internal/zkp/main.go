@@ -69,8 +69,8 @@ func (v *AuthVerifier) VerifyProof(user string, proof *zkptypes.ZKProof) (err er
 	switch {
 	case proof.PubSignals[NullifierSignalsIndex] != user:
 		return fmt.Errorf("expected user=%s, got %s", user, proof.PubSignals[NullifierSignalsIndex])
-	case proof.PubSignals[EventIDSignalsIndex] != EventID:
-		return fmt.Errorf("expected eventID=%s, got %s", EventID, proof.PubSignals[EventIDSignalsIndex])
+	case proof.PubSignals[EventIDSignalsIndex] != EventIDValue:
+		return fmt.Errorf("expected eventID=%s, got %s", EventIDValue, proof.PubSignals[EventIDSignalsIndex])
 	case proof.PubSignals[EventDataSignalsIndex] != chalDec:
 		return fmt.Errorf("expected challenge=%s, got %s", chalDec, proof.PubSignals[EventDataSignalsIndex])
 	}
