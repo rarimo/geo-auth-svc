@@ -3,14 +3,14 @@ package config
 import (
 	"fmt"
 
+	"github.com/rarimo/geo-auth-svc/internal/zkp"
 	zk "github.com/rarimo/zkverifier-kit"
 	"gitlab.com/distributed_lab/figure/v3"
 	"gitlab.com/distributed_lab/kit/kv"
 )
 
 const (
-	proofEventIDValue  = "111186066134341633902189494613533900917417361106374681011849132651019822199"
-	proofSelectorValue = "219681"
+	proofSelectorValue = "236065"
 	maxIdentityCount   = 1
 	documentTypeID     = "ID"
 )
@@ -37,7 +37,7 @@ func (c *config) PassportVerifier() *zk.Verifier {
 			zk.WithAgeAbove(cfg.AllowedAge),
 			zk.WithIdentityVerifier(c.ProvideVerifier()),
 			zk.WithProofSelectorValue(proofSelectorValue),
-			zk.WithEventID(proofEventIDValue),
+			zk.WithEventID(zkp.EventIDValue),
 			zk.WithIdentitiesCounter(maxIdentityCount),
 			zk.WithIdentitiesCreationTimestampLimit(cfg.AllowedIdentityTimestamp),
 			zk.WithDocumentType(documentTypeID),
