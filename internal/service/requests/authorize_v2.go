@@ -19,6 +19,8 @@ func NewAuthorizeV2(r *http.Request) (req resources.VerifyPassportRequest, err e
 	}
 
 	req.Data.ID = strings.ToLower(req.Data.ID)
+	ni := zk.Indexes(zk.GeorgianPassport)[zk.Nullifier]
+	nullifier := mustHexFromDecString(req.Data.Attributes.Proof.PubSignals[ni])
 
 	return req, validation.Errors{
 		"data/id": validation.Validate(req.Data.ID,
@@ -27,7 +29,7 @@ func NewAuthorizeV2(r *http.Request) (req resources.VerifyPassportRequest, err e
 		"data/type": validation.Validate(req.Data.Type,
 			validation.Required,
 			validation.In(resources.AUTHORIZE_V2)),
-		"data/attributes/proof/pub_signals/nullifier": validation.Validate(req.Data.ID, validation.In(mustHexFromDecString(req.Data.Attributes.Proof.PubSignals[zk.Nullifier]))),
+		"data/attributes/proof/pub_signals/nullifier": validation.Validate(req.Data.ID, validation.In(nullifier)),
 		"data/attributes/proof/proof":                 validation.Validate(req.Data.Attributes.Proof.Proof, validation.Required),
 		"data/attributes/proof/pub_signals":           validation.Validate(req.Data.Attributes.Proof.PubSignals, validation.Required, validation.Length(24, 24)),
 	}.Filter()
