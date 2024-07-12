@@ -14,7 +14,7 @@ require (
 	github.com/iden3/go-rapidsnark/types v0.0.3
 	github.com/iden3/go-rapidsnark/verifier v0.0.5
 	github.com/pkg/errors v0.9.1
-	github.com/rarimo/zkverifier-kit v1.1.0-rc.1
+	github.com/rarimo/zkverifier-kit v1.1.1
 	github.com/stretchr/testify v1.9.0
 	gitlab.com/distributed_lab/ape v1.7.1
 	gitlab.com/distributed_lab/figure v2.1.2+incompatible
