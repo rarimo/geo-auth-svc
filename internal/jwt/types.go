@@ -32,7 +32,7 @@ type AuthClaim struct {
 	Type       TokenType
 	IsVerified bool
 	IsAdmin    bool
-	SharedHash string
+	SharedHash *string
 }
 
 // RawJWT represents helper structure to provide setter and getter methods to work with JWT claims
@@ -62,7 +62,11 @@ func (r *RawJWT) SetIsAdmin(isAdmin bool) *RawJWT {
 	return r
 }
 
-func (r *RawJWT) SetSharedHash(sharedHash string) *RawJWT {
+func (r *RawJWT) SetSharedHash(sharedHash *string) *RawJWT {
+	if sharedHash == nil {
+		return r
+	}
+
 	r.claims[SharedHashName] = sharedHash
 	return r
 }
@@ -112,14 +116,14 @@ func (r *RawJWT) IsAdmin() (res bool, ok bool) {
 	return
 }
 
-func (r *RawJWT) SharedHash() (res string, ok bool) {
+func (r *RawJWT) SharedHash() (res *string, ok bool) {
 	var val interface{}
 
 	if val, ok = r.claims[SharedHashName]; !ok {
-		return
+		return nil, ok
 	}
 
-	res, ok = val.(string)
+	res, ok = val.(*string)
 	return
 }
 

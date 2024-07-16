@@ -4,7 +4,6 @@ required:
   - nullifier
   - is_verified
   - is_admin
-  - shared_hash
 properties:
   nullifier:
     type: string
@@ -22,5 +21,5 @@ properties:
   shared_hash:
     type: string
     example: "145728...0230"
-    description: User shared hash
+    description: This is the value from the query proof. Decimal representation of 256 bits, which is the personal number hash
     

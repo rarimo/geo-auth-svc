@@ -72,10 +72,9 @@ func (i *JWTIssuer) ValidateJWT(str string) (claim *AuthClaim, err error) {
 		return
 	}
 
-	claim.SharedHash, ok = raw.SharedHash()
-	if !ok {
-		err = errors.New("invalid sharedHash: failed to parse")
-		return
+	sharedHash, _ := raw.SharedHash()
+	if sharedHash != nil {
+		claim.SharedHash = sharedHash
 	}
 
 	claim.IsVerified, ok = raw.IsVerified()

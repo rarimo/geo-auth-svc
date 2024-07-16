@@ -13,5 +13,5 @@ type Claim struct {
 	// Nullifier authorized with
 	Nullifier string `json:"nullifier"`
 	// User shared hash
-	SharedHash string `json:"shared_hash"`
+	SharedHash *string `json:"shared_hash,omitempty"`
 }
