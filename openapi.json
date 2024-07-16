@@ -485,6 +485,11 @@
             "type": "bool",
             "example": false,
             "description": "Whether the user has a admin permissions"
+          },
+          "shared_hash": {
+            "type": "string",
+            "example": "145728...0230",
+            "description": "personalNumberHash pub signal from passport query proof"
           }
         }
       },
