@@ -20,7 +20,7 @@ type JWTIssuer struct {
 }
 
 func (i *JWTIssuer) IssueJWT(claim *AuthClaim) (token string, exp time.Time, err error) {
-	raw := (&RawJWT{make(jwt.MapClaims)}).SetNullifier(claim.Nullifier)
+	raw := (&RawJWT{make(jwt.MapClaims)}).SetNullifier(claim.Nullifier).SetSharedHash(claim.SharedHash)
 
 	exp = time.Now().UTC()
 
@@ -70,6 +70,11 @@ func (i *JWTIssuer) ValidateJWT(str string) (claim *AuthClaim, err error) {
 	if !ok {
 		err = errors.New("invalid nullifier: failed to parse")
 		return
+	}
+
+	sharedHash, _ := raw.SharedHash()
+	if sharedHash != nil {
+		claim.SharedHash = sharedHash
 	}
 
 	claim.IsVerified, ok = raw.IsVerified()

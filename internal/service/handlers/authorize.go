@@ -45,7 +45,7 @@ func Authorize(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	access, refresh, aexp, rexp, err := issueJWTs(r, req.Data.ID, verified)
+	access, refresh, aexp, rexp, err := issueJWTs(r, req.Data.ID, nil, verified)
 	if err != nil {
 		Log(r).WithError(err).WithField("user", req.Data.ID).Error("failed to issue JWTs")
 		ape.RenderErr(w, problems.InternalError())
@@ -139,12 +139,13 @@ func newTokenResponse(nullifier, access, refresh string) resources.TokenResponse
 	}
 }
 
-func issueJWTs(r *http.Request, nullifier string, verified bool) (access, refresh string, aexp, rexp time.Time, err error) {
+func issueJWTs(r *http.Request, nullifier string, sharedHash *string, verified bool) (access, refresh string, aexp, rexp time.Time, err error) {
 	access, aexp, err = JWT(r).IssueJWT(
 		&jwt.AuthClaim{
 			Nullifier:  nullifier,
 			Type:       jwt.AccessTokenType,
 			IsVerified: verified,
+			SharedHash: sharedHash,
 		},
 	)
 	if err != nil {
@@ -156,6 +157,7 @@ func issueJWTs(r *http.Request, nullifier string, verified bool) (access, refres
 			Nullifier:  nullifier,
 			Type:       jwt.RefreshTokenType,
 			IsVerified: verified,
+			SharedHash: sharedHash,
 		},
 	)
 	if err != nil {
