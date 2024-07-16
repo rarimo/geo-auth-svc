@@ -20,7 +20,7 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	access, refresh, aexp, rexp, err := issueJWTs(r, claim.Nullifier, claim.IsVerified)
+	access, refresh, aexp, rexp, err := issueJWTs(r, claim.Nullifier, claim.SharedHash, claim.IsVerified)
 	if err != nil {
 		Log(r).WithError(err).WithField("user", claim.Nullifier).Error("failed to issue JWTs")
 		ape.RenderErr(w, problems.InternalError())
