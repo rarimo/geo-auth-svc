@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"errors"
 	"math/big"
 	"net/http"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	zk "github.com/rarimo/zkverifier-kit"
+	"github.com/rarimo/zkverifier-kit/identity"
 
 	"github.com/rarimo/geo-auth-svc/internal/service/requests"
 	"gitlab.com/distributed_lab/ape"
@@ -20,23 +22,23 @@ func AuthorizeV2(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// nullifier := req.Data.ID
+	nullifier := req.Data.ID
 	proof := req.Data.Attributes.Proof
 
 	// never panics because of request validation
 	ind := zk.Indexes(zk.GeorgianPassport)
-	// proof.PubSignals[ind[zk.Nullifier]] = mustHexToInt(nullifier)
-	// err = PassportVerifier(r).VerifyProof(proof)
-	// if err != nil {
-	// 	if errors.Is(err, identity.ErrContractCall) {
-	// 		Log(r).WithError(err).Error("failed to verify proof")
-	// 		ape.RenderErr(w, problems.InternalError())
-	// 		return
-	// 	}
+	proof.PubSignals[ind[zk.Nullifier]] = mustHexToInt(nullifier)
+	err = PassportVerifier(r).VerifyProof(proof)
+	if err != nil {
+		if errors.Is(err, identity.ErrContractCall) {
+			Log(r).WithError(err).Error("failed to verify proof")
+			ape.RenderErr(w, problems.InternalError())
+			return
+		}
 
-	// 	ape.RenderErr(w, problems.BadRequest(err)...)
-	// 	return
-	// }
+		ape.RenderErr(w, problems.BadRequest(err)...)
+		return
+	}
 
 	sharedHash := proof.PubSignals[ind[zk.PersonalNumberHash]]
 
